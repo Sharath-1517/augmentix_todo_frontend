@@ -1,27 +1,32 @@
 import { useEffect, useState } from "react";
-import CreateTodoFormDialog from "./components/CreateTodoFormDialog";
+import CreateTodoFormDialog from "./CreateTodoFormDialog";
 import TodoTable from "@/TodoTable";
 import { TodoList } from "./types/todo";
 import { Toaster } from "sonner";
-import { fetchData } from "@/api";
-import CreateTodoForm from "./CreateTodoForm";
+import { useQuery } from "@tanstack/react-query";
+import { getTodos } from "./api";
 
 function App() {
   const [todoList, setTodoList] = useState<TodoList | null>();
 
   const [open, setOpen] = useState<boolean>(false);
 
-  const refetch = async () => {
-    const data = await fetchData({
-      endpoint: "todos",
-      method: "GET",
-    });
-    setTodoList(await (await data.json()).data);
-  };
+  const { data, isLoading, refetch } = useQuery<TodoList>({
+    queryKey: ["todos"],
+    queryFn: async () => {
+      const listItems = await getTodos();
+
+      const returnData = (await listItems.json()).data;
+
+      return returnData as TodoList;
+    },
+  });
+
+  console.log({ data });
 
   useEffect(() => {
-    refetch();
-  }, []);
+    setTodoList(data);
+  }, [data]);
 
   return (
     <div className="h-full relative">
@@ -34,12 +39,19 @@ function App() {
           <nav className="flex w-full justify-between px-2 py-3 items-center">
             <div className="font-montserrat text-xl">Todo List App</div>
             <div>
-              <CreateTodoFormDialog open={open} setOpen={setOpen}>
-                <CreateTodoForm refetch={refetch} closeDialog={setOpen} />
-              </CreateTodoFormDialog>
+              <CreateTodoFormDialog
+                open={open}
+                setOpen={setOpen}
+                refetch={refetch}
+              />
             </div>
           </nav>
         </header>
+        {isLoading && (
+          <div className="fixed h-screen w-screen bg-black/5 z-50 flex flex-col justify-center items-center">
+            Loading...
+          </div>
+        )}
         <div className="w-full h-full flex justify-center items-center py-4">
           {/* <ToDoList list={todoList} refetch={refetch} /> */}
           <TodoTable list={todoList || []} refetch={refetch} />
