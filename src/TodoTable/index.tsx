@@ -21,6 +21,7 @@ import { Search, Trash } from "lucide-react";
 import { Input } from "../components/ui/input";
 import { useMemo, useState } from "react";
 import { cn } from "@/lib/utils";
+import { fetchData } from "@/api";
 
 const Index = ({ list, refetch }: { list: TodoList; refetch: () => void }) => {
   const [search, setSearch] = useState<string>("");
@@ -32,12 +33,10 @@ const Index = ({ list, refetch }: { list: TodoList; refetch: () => void }) => {
     id: string;
     todo_title: string;
   }) => {
-    const data = await fetch(import.meta.env.VITE_BACKEND_URL + "todo/update", {
+    const data = await fetchData({
+      endpoint: "update",
       method: "PUT",
-      body: JSON.stringify({ todo_title, _id: id }),
-      headers: {
-        "Content-Type": "application/json",
-      },
+      data: { todo_title, _id: id },
     });
 
     const { message } = await data.json();
@@ -47,7 +46,7 @@ const Index = ({ list, refetch }: { list: TodoList; refetch: () => void }) => {
         <>
           {message} <br />
           {todo_title}
-        </>,
+        </>
       );
       refetch();
     } else {
@@ -55,7 +54,7 @@ const Index = ({ list, refetch }: { list: TodoList; refetch: () => void }) => {
         <>
           Could not mark task as completed <br />
           {todo_title}
-        </>,
+        </>
       );
     }
   };
@@ -65,12 +64,10 @@ const Index = ({ list, refetch }: { list: TodoList; refetch: () => void }) => {
     todo_status,
     todo_title,
   }: Partial<ToDo>) => {
-    const data = await fetch(import.meta.env.VITE_BACKEND_URL + "todo/update", {
+    const data = await fetchData({
+      endpoint: "update",
       method: "PUT",
-      body: JSON.stringify({ _id: id, todo_status }),
-      headers: {
-        "Content-Type": "application/json",
-      },
+      data: { _id: id, todo_status },
     });
 
     const { message } = await data.json();
@@ -80,7 +77,7 @@ const Index = ({ list, refetch }: { list: TodoList; refetch: () => void }) => {
         <>
           {message} <br />
           {todo_title}
-        </>,
+        </>
       );
       refetch();
     } else {
@@ -88,7 +85,7 @@ const Index = ({ list, refetch }: { list: TodoList; refetch: () => void }) => {
         <>
           Could not mark task as completed <br />
           {todo_title}
-        </>,
+        </>
       );
     }
   };
@@ -100,23 +97,18 @@ const Index = ({ list, refetch }: { list: TodoList; refetch: () => void }) => {
     _id: string;
     todo_title: string;
   }) => {
-    const data = await fetch(
-      import.meta.env.VITE_BACKEND_URL + "todo/delete/",
-      {
-        method: "POST",
-        body: JSON.stringify({ todoId: _id }),
-        headers: {
-          "Content-Type": "application/json",
-        },
-      },
-    );
+    const data = await fetchData({
+      endpoint: "delete/",
+      method: "POST",
+      data: { todoId: _id },
+    });
 
     if (data.ok) {
       toast.success(
         <div className="flex flex-col items-start overflow-hidden text-ellipsis">
           <p>Deleted Task</p>
           <p className="line-clamp-2 text-black">{todo_title}</p>
-        </div>,
+        </div>
       );
       refetch();
     } else {
@@ -208,7 +200,7 @@ const Index = ({ list, refetch }: { list: TodoList; refetch: () => void }) => {
 
   const formattingArrayBySearch = useMemo(() => {
     return list.filter((listItem) =>
-      listItem.todo_title.toLowerCase().includes(search.toLowerCase()),
+      listItem.todo_title.toLowerCase().includes(search.toLowerCase())
     );
   }, [search, list]);
 
@@ -243,7 +235,7 @@ const Index = ({ list, refetch }: { list: TodoList; refetch: () => void }) => {
                         ? null
                         : flexRender(
                             header.column.columnDef.header,
-                            header.getContext(),
+                            header.getContext()
                           )}
                     </TableHead>
                   );
@@ -258,14 +250,14 @@ const Index = ({ list, refetch }: { list: TodoList; refetch: () => void }) => {
                   key={row.id}
                   data-state={row.getIsSelected() && "selected"}
                   className={cn(
-                    row.original.todo_status && "bg-gray-400 hover:bg-gray-400",
+                    row.original.todo_status && "bg-gray-400 hover:bg-gray-400"
                   )}
                 >
                   {row.getVisibleCells().map((cell) => (
                     <TableCell key={cell.id}>
                       {flexRender(
                         cell.column.columnDef.cell,
-                        cell.getContext(),
+                        cell.getContext()
                       )}
                     </TableCell>
                   ))}

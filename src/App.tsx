@@ -13,7 +13,7 @@ function App() {
 
   const refetch = async () => {
     const data = await fetchData({
-      endpoint: "todo/todos",
+      endpoint: "todos",
       method: "GET",
     });
     setTodoList(await (await data.json()).data);

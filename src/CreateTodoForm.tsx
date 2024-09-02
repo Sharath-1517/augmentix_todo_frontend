@@ -14,6 +14,7 @@ import { formSchema } from "@/lib/actions";
 import { Button } from "@/components/ui/button";
 import { Dispatch, SetStateAction } from "react";
 import { toast } from "sonner";
+import { fetchData } from "./api";
 
 const CreateTodoForm = ({
   refetch,
@@ -30,18 +31,19 @@ const CreateTodoForm = ({
   });
 
   async function onSubmit(values: z.infer<typeof formSchema>) {
-    await fetch(import.meta.env.VITE_BACKEND_URL + "todo/create/", {
+    console.log(values);
+
+    const data = await fetchData({
+      endpoint: "create",
       method: "POST",
-      body: JSON.stringify(values),
-      headers: {
-        "Content-Type": "application/json",
-      },
-    }).then((res) => {
+      data: values,
+    });
+
+    if (data.ok) {
       refetch();
       closeDialog(false);
       toast.success("Added Todo task");
-      return res.json();
-    });
+    }
   }
 
   return (

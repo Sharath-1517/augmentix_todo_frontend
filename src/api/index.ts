@@ -10,13 +10,13 @@ export async function fetchData({
   if (method == "GET") {
     return await fetch(`${import.meta.env.VITE_BACKEND_URL}${endpoint}`, {
       method,
-      body: JSON.stringify(data),
       headers: { "Content-Type": "application/json" },
     });
+  } else {
+    return await fetch(`${import.meta.env.VITE_BACKEND_URL}${endpoint}`, {
+      method,
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify(data),
+    });
   }
-
-  return await fetch(`${import.meta.env.VITE_BACKEND_URL}${endpoint}`, {
-    method,
-    headers: { "Content-Type": "application/json" },
-  });
 }
